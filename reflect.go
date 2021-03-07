@@ -3,18 +3,15 @@ package ormatic
 import (
 	"reflect"
 	"strings"
+
+	"github.com/saromanov/ormatic/models"
 )
 
-
-type Pair struct {
-	Key string
-	Value interface{}
-}
 
 // getFieldsFromStruct returns list of fields with db tag
 func getFieldsFromStruct(d interface{})[]Pair {
 	val := reflect.ValueOf(d).Elem()
-	values := []Pair{}
+	values := []models.Pair{}
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
 		typeField := val.Type().Field(i)
@@ -23,7 +20,7 @@ func getFieldsFromStruct(d interface{})[]Pair {
 		if dbTag == "" {
 			dbTag = strings.ToLower(typeField.Name)
 		}
-		values = append(values, Pair{Key: dbTag, 
+		values = append(values, models.Pair{Key: dbTag, 
 			Value:valueField.Interface(),
 		})
 	}
