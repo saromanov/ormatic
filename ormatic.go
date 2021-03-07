@@ -19,6 +19,7 @@ func New(db *sql.DB) (*Ormatic, error) {
 	}, nil
 }
 
+// Save provides saving of the data
 func (o *Ormatic) Save(d interface{}) error {
 	return nil
 }
