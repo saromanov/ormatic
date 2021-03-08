@@ -36,6 +36,14 @@ func getFieldsFromStruct(d interface{})([]models.Pair, error) {
 	return values, nil
 }
 
+func getObjectName(d interface{}) string {
+	t := reflect.TypeOf(d)
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t.Name()
+}
+
 func isStruct(d interface{}) bool {
 	switch reflect.ValueOf(d).Kind() {
 	case reflect.Struct:

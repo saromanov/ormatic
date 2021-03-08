@@ -30,7 +30,9 @@ func (o *Ormatic) save(d interface{}) error {
 	if err != nil {
 	  return errors.Wrap(err, "unable to get fields from the struct")
 	}
-	stat, err := generate.Insert("", fields)
+
+	tableName := getObjectName(d)
+	stat, err := generate.Insert(tableName, fields)
 	if err != nil {
 		return errors.Wrap(err, "unable to generate statement")
 	}
