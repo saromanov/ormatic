@@ -30,5 +30,5 @@ func Insert(tableName string, values []models.Pair) (string, []interface{}, erro
 	keysStr := strings.Join(keys, ",")
 	expr += keysStr + ") "
 	expr += "VALUES (" + strings.Join(nums, ",") + ")"
-	return expr, nil, nil
+	return expr, data, nil
 }
