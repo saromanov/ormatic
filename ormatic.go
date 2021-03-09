@@ -1,6 +1,7 @@
 package ormatic
 
 import (
+	"fmt"
 	"database/sql"
 	"github.com/pkg/errors"
 	"github.com/saromanov/ormatic/generate"
@@ -32,10 +33,13 @@ func (o *Ormatic) save(d interface{}) error {
 	}
 
 	tableName := getObjectName(d)
-	stat, err := generate.Insert(tableName, fields)
+	query, values, err := generate.Insert(tableName, fields)
 	if err != nil {
 		return errors.Wrap(err, "unable to generate statement")
 	}
-	fmt.Println(stat)
+	_, err = o.db.Exec(query, values...)
+	if err != nil {
+	  return errors.Wrap(err, "unable to insert data")
+	}
 	return nil
 }

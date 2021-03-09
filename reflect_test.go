@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type Test struct {
+	
+}
+
 func TestGetFieldsFromStruct(t *testing.T) {
 	_, err := getFieldsFromStruct(nil)
 	assert.Error(t, errNoStruct, err)
@@ -13,4 +17,8 @@ func TestGetFieldsFromStruct(t *testing.T) {
 	assert.Error(t, errNoStruct, err)
 	_, err = getFieldsFromStruct([]string{})
 	assert.Error(t, errNoStruct, err)
+}
+
+func TestGetStructName(t *testing.T) {
+
 }

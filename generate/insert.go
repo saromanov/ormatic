@@ -13,20 +13,22 @@ var (
 )
 
 // Insert provides generation of Insert
-func Insert(tableName string, values []models.Pair) (string, error) {
+func Insert(tableName string, values []models.Pair) (string, []interface{}, error) {
 	if tableName == "" {
-		return "", errNoTableName
+		return "", nil, errNoTableName
 	}
 	expr := fmt.Sprintf("INSERT INTO %s (", tableName)
 	num := len(values)
 	keys := make([]string, num)
 	nums := make([]string, num)
+	data := make([]interface{}, num)
 	for i, v := range values {
 		keys[i] = v.Key
+		data[i] = v.Value
 		nums[i] = fmt.Sprintf("$%d", i+1)
 	}
 	keysStr := strings.Join(keys, ",")
 	expr += keysStr + ") "
 	expr += "VALUES (" + strings.Join(nums, ",") + ")"
-	return expr, nil
+	return expr, nil, nil
 }
