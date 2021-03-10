@@ -20,5 +20,5 @@ func TestGetFieldsFromStruct(t *testing.T) {
 }
 
 func TestGetStructName(t *testing.T) {
-
+	assert.Equal(t, "test", getObjectName(&Test{}))
 }

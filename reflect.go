@@ -41,7 +41,7 @@ func getObjectName(d interface{}) string {
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	return t.Name()
+	return strings.ToLower(t.Name())
 }
 
 func isStruct(d interface{}) bool {

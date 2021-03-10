@@ -1,7 +1,6 @@
 package ormatic
 
 import (
-	"fmt"
 	"database/sql"
 	"github.com/pkg/errors"
 	"github.com/saromanov/ormatic/generate"
