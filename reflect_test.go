@@ -21,4 +21,5 @@ func TestGetFieldsFromStruct(t *testing.T) {
 
 func TestGetStructName(t *testing.T) {
 	assert.Equal(t, "test", getObjectName(&Test{}))
+	assert.Equal(t, "", getObjectName(map[string]interface{}{}))
 }

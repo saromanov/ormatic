@@ -37,6 +37,9 @@ func getFieldsFromStruct(d interface{})([]models.Pair, error) {
 }
 
 func getObjectName(d interface{}) string {
+	if ok := isStruct(d); !ok {
+		return ""
+	}
 	t := reflect.TypeOf(d)
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
