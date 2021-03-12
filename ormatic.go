@@ -20,6 +20,10 @@ func New(db *sql.DB) (*Ormatic, error) {
 	}, nil
 }
 
+// Create provides creating of tables from structs
+func (o *Ormatic) Create(d ...interface{}) error {
+	return o.create(d...)
+}
 // Save provides saving of the data
 func (o *Ormatic) Save(d interface{}) error {
 	return o.save(d)
@@ -41,4 +45,13 @@ func (o *Ormatic) save(d interface{}) error {
 	  return errors.Wrap(err, "unable to insert data")
 	}
 	return nil
+}
+
+func ( o*Ormatic) create(models ...interface{}) error {\
+	if len(models) == 0 {
+		return nil
+	}
+	for _, m := range models {
+
+	}
 }
