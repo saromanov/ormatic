@@ -1,10 +1,11 @@
 package ormatic
 
 import (
-	"errors"
 	"reflect"
 	"strings"
-
+	
+	"github.com/pkg/errors"
+	
 	"github.com/saromanov/ormatic/models"
 )
 
@@ -14,12 +15,12 @@ var (
 	errNoStruct = errors.New("provided data is not struct")
 )
 
-var goTypeToSqlType = map[string]string {
-	"int": "integer",
-	"int16": "integer",
-	"int32": "integer",
-	"int64": "bigint",
-	"string": "text",
+var goTypeToSqlType = map[string]string{
+	"int":     "integer",
+	"int16":   "integer",
+	"int32":   "integer",
+	"int64":   "bigint",
+	"string":  "text",
 	"float32": "double",
 	"float64": "double",
 }
@@ -68,25 +69,32 @@ func isStruct(d interface{}) bool {
 }
 
 // Return struct for create table from the model
-func getStructFieldsTypes(d interface{}) (models.Create, error) {
-	resp := models.Create{}
+func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
+	resp := []models.Create{}
 	if ok := isStruct(d); !ok {
-		return resp, errNoStruct
+		return nil, errNoStruct
 	}
 	v := reflect.ValueOf(d).Elem()
+	root := models.Create{}
+	root.TableName = getObjectName(d)
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
 		switch f.Kind() {
-		case reflect.String, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, 
-		reflect.Float32,
-		reflect.Float64:
-			resp.TableFields = append(resp.TableFields, models.TableField{
-				Name: v.Type().Field(j).Name,
-				Type: f.Type().String(),
+		case reflect.String, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Float32,
+			reflect.Float64:
+			root.TableFields = append(root.TableFields, models.TableField{
+				Name: strings.ToLower(v.Type().Field(j).Name),
+				Type: goTypeToSqlType[f.Type().String()],
 			})
 		case reflect.Struct:
-			getStructFieldsTypes(f)
+			inner, err := getStructFieldsTypes(v.Field(j).Addr().Interface())
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get struct field")
+			}
+			resp = append(resp, inner...)
 		}
 	}
+	resp = append(resp, root)
 	return resp, nil
 }

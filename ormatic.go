@@ -56,14 +56,12 @@ func (o *Ormatic) create(models ...interface{}) error {
 		return nil
 	}
 	for _, m := range models {
-		getStructFieldsTypes(m)
-		fields, err := getFieldsFromStruct(m)
+		fields, err := getStructFieldsTypes(m)
 		if err != nil {
 			return errors.Wrap(err, "unable to get fields from the struct")
 		}
 
-		tableName := getObjectName(m)
-		fmt.Println(tableName, fields)
+		fmt.Println(fields)
 	}
 	return nil
 }
