@@ -58,17 +58,22 @@ func isStruct(d interface{}) bool {
 	return false
 }
 
-// Return
-func getStructFieldsTypes(d interface{}) error {
+// Return struct for create table from the model
+func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 	if ok := isStruct(d); !ok {
-		return errNoStruct
+		return nil, errNoStruct
 	}
+	resp := []models.Create{}
 	v := reflect.ValueOf(d).Elem()
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
+		switch f.Kind() {
+		case reflect.String:
+
+		}
 		n := v.Type().Field(j).Name
 		t := f.Type().String()
 		fmt.Printf("Name: %s  Kind: %s  Type: %s\n", n, f.Kind(), t)
 	}
-	return nil
+	return resp, nil
 }

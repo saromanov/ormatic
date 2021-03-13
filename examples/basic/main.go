@@ -10,6 +10,11 @@ import (
 
 type Book struct {
 	Title string
+	Address Address
+}
+
+type Address struct {
+	Name string
 }
 
 func main() {
