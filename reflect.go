@@ -2,7 +2,6 @@ package ormatic
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -14,6 +13,16 @@ const dbField = "db"
 var (
 	errNoStruct = errors.New("provided data is not struct")
 )
+
+var goTypeToSqlType = map[string]string {
+	"int": "integer",
+	"int16": "integer",
+	"int32": "integer",
+	"int64": "bigint",
+	"string": "text",
+	"float32": "double",
+	"float64": "double",
+}
 
 // getFieldsFromStruct returns list of fields with db tag
 func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
@@ -59,21 +68,25 @@ func isStruct(d interface{}) bool {
 }
 
 // Return struct for create table from the model
-func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
+func getStructFieldsTypes(d interface{}) (models.Create, error) {
+	resp := models.Create{}
 	if ok := isStruct(d); !ok {
-		return nil, errNoStruct
+		return resp, errNoStruct
 	}
-	resp := []models.Create{}
 	v := reflect.ValueOf(d).Elem()
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
 		switch f.Kind() {
-		case reflect.String:
-
+		case reflect.String, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, 
+		reflect.Float32,
+		reflect.Float64:
+			resp.TableFields = append(resp.TableFields, models.TableField{
+				Name: v.Type().Field(j).Name,
+				Type: f.Type().String(),
+			})
+		case reflect.Struct:
+			getStructFieldsTypes(f)
 		}
-		n := v.Type().Field(j).Name
-		t := f.Type().String()
-		fmt.Printf("Name: %s  Kind: %s  Type: %s\n", n, f.Kind(), t)
 	}
 	return resp, nil
 }
