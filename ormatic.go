@@ -52,6 +52,11 @@ func ( o*Ormatic) create(models ...interface{}) error {\
 		return nil
 	}
 	for _, m := range models {
+		fields, err := getFieldsFromStruct(d)
+		if err != nil {
+	  		return errors.Wrap(err, "unable to get fields from the struct")
+		}
 
+		tableName := getObjectName(d)
 	}
 }

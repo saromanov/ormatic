@@ -56,3 +56,18 @@ func isStruct(d interface{}) bool {
 	}
 	return false
 }
+
+// Return 
+func getStructFieldsTypes(d interface{}) error {
+	if ok := isStruct(d); !ok {
+		return errNoStruct
+	}
+	v := reflect.ValueOf(d).Elem()
+    for j := 0; j < v.NumField(); j++ {
+        f := v.Field(j)
+        n := v.Type().Field(j).Name
+        t := f.Type().String()
+        fmt.Printf("Name: %s  Kind: %s  Type: %s\n", n, f.Kind(), t)
+    }
+	return nil
+}
