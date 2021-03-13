@@ -15,6 +15,11 @@ type Book struct {
 
 type Address struct {
 	Name string
+	Basic Another
+}
+
+type Another struct {
+	Basic string
 }
 
 func main() {
