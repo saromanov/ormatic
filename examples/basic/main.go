@@ -38,4 +38,8 @@ func main() {
 	if err := o.Create(&Book{}); err != nil {
 		panic(err)
 	}
+	
+	o.Insert(&Book{
+		Title:"test"
+	})
 }
