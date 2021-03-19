@@ -3,9 +3,9 @@ package ormatic
 import (
 	"reflect"
 	"strings"
-	
+
 	"github.com/pkg/errors"
-	
+
 	"github.com/saromanov/ormatic/models"
 )
 
@@ -79,6 +79,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 	root.TableName = getObjectName(d)
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
+		parseTableTags(v.Type().Field(j).Tag)
 		switch f.Kind() {
 		case reflect.String, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Float32,
@@ -86,6 +87,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 			root.TableFields = append(root.TableFields, models.TableField{
 				Name: strings.ToLower(v.Type().Field(j).Name),
 				Type: goTypeToSqlType[f.Type().String()],
+				Tags: parseTableTags(v.Type().Field(j).Tag),
 			})
 		case reflect.Struct:
 			inner, err := getStructFieldsTypes(v.Field(j).Addr().Interface())
@@ -97,4 +99,20 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 	}
 	resp = append(resp, root)
 	return resp, nil
+}
+
+func parseTableTags(s reflect.StructTag) models.Tags {
+	res := models.Tags{} 
+	tags := s.Get("orm")
+	if tags == "" {
+		return res
+	}
+	tags = strings.ToLower(tags)
+	if strings.Contains(tags, "primary_key") {
+		res.PrimaryKey = true
+	}
+	if strings.Contains(tags, "not_null") {
+		res.NotNULL = true
+	}
+	return res
 }
