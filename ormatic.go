@@ -70,6 +70,18 @@ func (o *Ormatic) create(models ...interface{}) error {
 func (o *Ormatic) constructCreateTable(models []models.Create) error {
 	for _, m := range models {
 		text := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
+		if len(m.TableFields) == 0 {
+			_, err := o.db.Exec(text)
+			if err != nil {
+			  return errors.Wrap(err, "unable to execute data")
+			}
+			continue
+		}
+		text += "("
+		for _, f := range m.TableFields {
+			text += fmt.Sprintf("%s %s", f.Name, f.Type)
+		}
+		text += ")"
 		o.db.Exec(text)
 	}
 	return nil
