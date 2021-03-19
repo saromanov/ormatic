@@ -9,6 +9,7 @@ import (
 )
 
 type Book struct {
+	ID int `orm:"PRIMARY_KEY,NOT_NULL"`
 	Title string
 	Address Address
 }
@@ -39,7 +40,7 @@ func main() {
 		panic(err)
 	}
 	
-	o.Insert(&Book{
-		Title:"test"
+	o.Save(&Book{
+		Title:"test",
 	})
 }

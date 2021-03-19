@@ -61,13 +61,13 @@ func (o *Ormatic) create(models ...interface{}) error {
 		if err != nil {
 			return errors.Wrap(err, "unable to get fields from the struct")
 		}
-
+		fmt.Println(fields)
 		o.constructCreateTable(fields)
 	}
 	return nil
 }
 
-func (o *Ormatic) constructCreateTable(models []models.Create) error{
+func (o *Ormatic) constructCreateTable(models []models.Create) error {
 	for _, m := range models {
 		text := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
 		o.db.Exec(text)

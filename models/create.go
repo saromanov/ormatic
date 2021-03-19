@@ -2,7 +2,9 @@ package models
 
 // Create defines model for create table
 type Create struct {
-	TableName string
+	TableName   string
+	PrimaryKey  bool
+	NotNULL     bool
 	TableFields []TableField
 }
 
