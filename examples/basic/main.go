@@ -17,6 +17,7 @@ type Book struct {
 type Address struct {
 	Name string
 	Basic Another
+	BookID int `orm:"ON=book.id"`
 }
 
 type Another struct {

@@ -114,5 +114,8 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 	if strings.Contains(tags, "not_null") {
 		res.NotNULL = true
 	}
+	if strings.Contains(tags, "unique") {
+		res.Unicue = true
+	}
 	return res
 }
