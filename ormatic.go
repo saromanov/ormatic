@@ -81,7 +81,7 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		text += "("
 		for i, f := range m.TableFields {
 			text += fmt.Sprintf("%s %s", f.Name, f.Type)
-			if i >= len(m.TableFields){
+			if (len(m.TableFields)- i) != 1 {
 				text += ","
 			}
 		}
