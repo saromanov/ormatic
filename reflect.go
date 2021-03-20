@@ -34,6 +34,9 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 	val := reflect.ValueOf(d).Elem()
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
+		if valueField.IsZero() || valueField.IsZero() {
+			continue
+		}
 		typeField := val.Type().Field(i)
 		tag := typeField.Tag
 		dbTag := tag.Get(dbField)
@@ -102,7 +105,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 }
 
 func parseTableTags(s reflect.StructTag) models.Tags {
-	res := models.Tags{} 
+	res := models.Tags{}
 	tags := s.Get("orm")
 	if tags == "" {
 		return res

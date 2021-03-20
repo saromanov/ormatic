@@ -41,7 +41,10 @@ func main() {
 		panic(err)
 	}
 	
-	o.Save(&Book{
+	if err := o.Save(&Book{
+		ID: 10,
 		Title:"test",
-	})
+	}); err != nil {
+		panic(err)
+	}
 }
