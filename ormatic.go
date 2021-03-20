@@ -61,8 +61,9 @@ func (o *Ormatic) create(models ...interface{}) error {
 		if err != nil {
 			return errors.Wrap(err, "unable to get fields from the struct")
 		}
-		fmt.Println(fields)
-		o.constructCreateTable(fields)
+		if err := o.constructCreateTable(fields); err != nil {
+			return errors.Wrap(err, "unable to execute create table")
+		}
 	}
 	return nil
 }
@@ -78,11 +79,17 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 			continue
 		}
 		text += "("
-		for _, f := range m.TableFields {
+		for i, f := range m.TableFields {
 			text += fmt.Sprintf("%s %s", f.Name, f.Type)
+			if i >= len(m.TableFields){
+				text += ","
+			}
 		}
 		text += ")"
-		o.db.Exec(text)
+		fmt.Println(text)
+		if _, err := o.db.Exec(text); err != nil {
+			return errors.Wrap(err, "unable to execute data")
+		}
 	}
 	return nil
 }
