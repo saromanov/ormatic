@@ -34,6 +34,11 @@ func (o *Ormatic) Save(d interface{}) error {
 	return o.save(d)
 }
 
+// Drop provides drop of the table
+func (o *Ormatic) Drop(table string) error {
+	return o.drop(table)
+}
+
 func (o *Ormatic) save(d interface{}) error {
 	fields, err := getFieldsFromStruct(d)
 	if err != nil {
@@ -48,6 +53,14 @@ func (o *Ormatic) save(d interface{}) error {
 	_, err = o.db.Exec(query, values...)
 	if err != nil {
 		return errors.Wrap(err, "unable to insert data")
+	}
+	return nil
+}
+
+func (o *Ormatic) drop(table string) error {
+	_, err := o.db.Exec(fmt.Sprintf("DROP TABLE %s", table))
+	if err != nil {
+	  return errors.Wrap(err, "unable to drop tablle")
 	}
 	return nil
 }
@@ -68,6 +81,8 @@ func (o *Ormatic) create(models ...interface{}) error {
 	return nil
 }
 
+// consructCreateTable provides generation of the create 
+// table statement
 func (o *Ormatic) constructCreateTable(models []models.Create) error {
 	for _, m := range models {
 		text := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
