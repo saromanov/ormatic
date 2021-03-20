@@ -81,6 +81,15 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		text += "("
 		for i, f := range m.TableFields {
 			text += fmt.Sprintf("%s %s", f.Name, f.Type)
+			if f.Tags.PrimaryKey {
+				text += " PRIMARY KEY"
+			}
+			if f.Tags.NotNULL {
+				text += " NOT NULL"
+			}
+			if f.Tags.Unique {
+				text += " UNIQUE"
+			}
 			if (len(m.TableFields)- i) != 1 {
 				text += ","
 			}
