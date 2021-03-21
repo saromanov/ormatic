@@ -82,7 +82,6 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 	root.TableName = getObjectName(d)
 	for j := 0; j < v.NumField(); j++ {
 		f := v.Field(j)
-		parseTableTags(v.Type().Field(j).Tag)
 		switch f.Kind() {
 		case reflect.String, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Float32,

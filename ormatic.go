@@ -60,7 +60,7 @@ func (o *Ormatic) save(d interface{}) error {
 func (o *Ormatic) drop(table string) error {
 	_, err := o.db.Exec(fmt.Sprintf("DROP TABLE %s", table))
 	if err != nil {
-	  return errors.Wrap(err, "unable to drop tablle")
+		return errors.Wrap(err, "unable to drop tablle")
 	}
 	return nil
 }
@@ -81,7 +81,7 @@ func (o *Ormatic) create(models ...interface{}) error {
 	return nil
 }
 
-// consructCreateTable provides generation of the create 
+// consructCreateTable provides generation of the create
 // table statement
 func (o *Ormatic) constructCreateTable(models []models.Create) error {
 	for _, m := range models {
@@ -89,7 +89,7 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		if len(m.TableFields) == 0 {
 			_, err := o.db.Exec(text)
 			if err != nil {
-			  return errors.Wrap(err, "unable to execute data")
+				return errors.Wrap(err, "unable to execute data")
 			}
 			continue
 		}
@@ -105,12 +105,11 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 			if f.Tags.Unique {
 				text += " UNIQUE"
 			}
-			if (len(m.TableFields)- i) != 1 {
+			if (len(m.TableFields) - i) != 1 {
 				text += ","
 			}
 		}
 		text += ")"
-		fmt.Println(text)
 		if _, err := o.db.Exec(text); err != nil {
 			return errors.Wrap(err, "unable to execute data")
 		}
