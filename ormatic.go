@@ -3,6 +3,7 @@ package ormatic
 import (
 	"database/sql"
 	"fmt"
+	"os/exec"
 
 	"github.com/pkg/errors"
 	"github.com/saromanov/ormatic/generate"
@@ -58,7 +59,7 @@ func (o *Ormatic) save(d interface{}) error {
 }
 
 func (o *Ormatic) drop(table string) error {
-	_, err := o.db.Exec(fmt.Sprintf("DROP TABLE %s", table))
+	_, err := o.exec(fmt.Sprintf("DROP TABLE %s", table))
 	if err != nil {
 		return errors.Wrap(err, "unable to drop tablle")
 	}
@@ -87,7 +88,7 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 	for _, m := range models {
 		text := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
 		if len(m.TableFields) == 0 {
-			_, err := o.db.Exec(text)
+			_, err := o.exec(text)
 			if err != nil {
 				return errors.Wrap(err, "unable to execute data")
 			}
@@ -110,9 +111,13 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 			}
 		}
 		text += ")"
-		if _, err := o.db.Exec(text); err != nil {
+		if _, err := o.exec(text); err != nil {
 			return errors.Wrap(err, "unable to execute data")
 		}
 	}
 	return nil
+}
+
+func (o *Ormatic) exec(query string) (sql.Result, error) {
+	return o.db.Exec(query)
 }
