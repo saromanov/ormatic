@@ -59,6 +59,9 @@ func (o *Ormatic) save(d interface{}) error {
 }
 
 func (o *Ormatic) drop(table string) error {
+	if table == "" {
+		return nil
+	}
 	_, err := o.exec(fmt.Sprintf("DROP TABLE %s", table))
 	if err != nil {
 		return errors.Wrap(err, "unable to drop tablle")
