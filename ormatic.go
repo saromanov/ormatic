@@ -45,6 +45,11 @@ func (o *Ormatic) Driver() *sql.DB {
 	return o.db
 } 
 
+// Delete provides deleteing of data
+func (o *Ormatic) Delete(d interface{}) error {
+	return o.delete(d)
+}
+
 func (o *Ormatic) save(d interface{}) error {
 	fields, err := getFieldsFromStruct(d)
 	if err != nil {
@@ -86,6 +91,14 @@ func (o *Ormatic) create(models ...interface{}) error {
 		if err := o.constructCreateTable(fields); err != nil {
 			return errors.Wrap(err, "unable to execute create table")
 		}
+	}
+	return nil
+}
+
+func (o *Ormatic) delete(d interface{}) error {
+	_, err := getFieldsFromStruct(d)
+	if err != nil {
+		return errors.Wrap(err, "unable to get fields from the struct")
 	}
 	return nil
 }
