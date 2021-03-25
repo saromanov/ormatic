@@ -40,6 +40,11 @@ func (o *Ormatic) Drop(table string) error {
 	return o.drop(table)
 }
 
+// Driver returns sql.DB driver
+func (o *Ormatic) Driver() *sql.DB {
+	return o.db
+} 
+
 func (o *Ormatic) save(d interface{}) error {
 	fields, err := getFieldsFromStruct(d)
 	if err != nil {
