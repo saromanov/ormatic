@@ -3,7 +3,6 @@ package ormatic
 import (
 	"database/sql"
 	"fmt"
-	"os/exec"
 
 	"github.com/pkg/errors"
 	"github.com/saromanov/ormatic/generate"
@@ -48,6 +47,15 @@ func (o *Ormatic) Driver() *sql.DB {
 // Delete provides deleteing of data
 func (o *Ormatic) Delete(d interface{}) error {
 	return o.delete(d)
+}
+
+func (o *Ormatic) Find(query interface{}, dest interface{}) error {
+	fields, err := getFieldsFromStruct(query)
+	if err != nil {
+		return errors.Wrap(err, "unable to get fields from the struct")
+	}
+	fmt.Println(fields)
+	return nil
 }
 
 func (o *Ormatic) save(d interface{}) error {

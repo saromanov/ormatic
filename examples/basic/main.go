@@ -9,14 +9,14 @@ import (
 )
 
 type Book struct {
-	ID int `orm:"PRIMARY_KEY,NOT_NULL"`
-	Title string
+	ID      int `orm:"PRIMARY_KEY,NOT_NULL"`
+	Title   string
 	Address Address
 }
 
 type Address struct {
-	Name string
-	Basic Another
+	Name   string
+	Basic  Another
 	BookID int `orm:"ON=book.id"`
 }
 
@@ -40,11 +40,18 @@ func main() {
 	if err := o.Create(&Book{}); err != nil {
 		panic(err)
 	}
-	
-	if err := o.Save(&Book{
-		ID: 10,
-		Title:"test",
+
+	/*if err := o.Save(&Book{
+		ID:    15,
+		Title: "test",
 	}); err != nil {
+		panic(err)
+	}*/
+
+	var books []Book
+	if err := o.Find(&Book{
+		Title:"test",
+	}, &books); err != nil {
 		panic(err)
 	}
 }
