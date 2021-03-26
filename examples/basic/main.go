@@ -49,9 +49,10 @@ func main() {
 	}*/
 
 	var books []Book
-	if err := o.Find(&Book{
-		Title:"test",
-	}, &books); err != nil {
+	err = o.Find(&Book{
+		Title: "test",
+	}).Do(&books)
+	if err != nil {
 		panic(err)
 	}
 }

@@ -49,8 +49,8 @@ func (o *Ormatic) Delete(d interface{}) error {
 	return o.delete(d)
 }
 
-func (o *Ormatic) Find(query, dest interface{}) error {
-	return o.find(query, dest)
+func (o *Ormatic) Find(query interface{}) *FindResult {
+	return o.find(query)
 }
 
 func (o *Ormatic) save(d interface{}) error {
@@ -98,13 +98,16 @@ func (o *Ormatic) create(models ...interface{}) error {
 	return nil
 }
 
-func (o *Ormatic) find(q, d interface{}) error {
+func (o *Ormatic) find(q interface{}) *FindResult {
 	fields, err := getFieldsFromStruct(q)
-	if err != nil {
-		return errors.Wrap(err, "unable to get fields from the struct")
+	res := &FindResult{
 	}
-	fmt.Println(getObjectName(q), fields)
-	return nil
+	if err != nil {
+		res.err = errors.Wrap(err, "unable to get fields from the struct")
+		return res
+	}
+	res.nonEmptyFields = fields
+	return res
 }
 
 func (o *Ormatic) delete(d interface{}) error {
