@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -67,8 +68,15 @@ func (d *FindResult) constructFindStatement(tableName string, nonEmptyFields []m
 	stat += " WHERE "
 	data := make([]string, 0, len(nonEmptyFields))
 	for _, f := range nonEmptyFields {
-		data = append(data, fmt.Sprintf("%s='%s' ", f.Key, f.Value))
+		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
 	stat += strings.Join(data, "AND")
 	return stat, nil
+}
+
+func (d *FindResult) setValue(value interface{}) string {
+	if reflect.ValueOf(value).Kind() == reflect.String {
+		return fmt.Sprintf("'%v'", value)
+	}
+	return fmt.Sprintf("%v", value)
 }
