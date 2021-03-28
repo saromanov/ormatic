@@ -119,5 +119,8 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 	if strings.Contains(tags, "unique") {
 		res.Unique = true
 	}
+	if strings.Contains(tags, "index") {
+		res.Index = "index"
+	}
 	return res
 }
