@@ -3,6 +3,7 @@ package ormatic
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -32,6 +33,25 @@ func (d *FindResult) Do(dest interface{}) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(res)
+	rows, err := d.db.Query(res)
+	if err != nil {
+		return errors.Wrap(err, "unable to query data")
+	}
+	defer func(){
+		if err := rows.Close(); err != nil {
+			log.Println("unable to close rows: ", err)
+		}
+	}()
+
+	for rows.Next(){
+		var data interface{}
+		var data2 interface{}
+		if err := rows.Scan(&data, &data2); err != nil {
+			return errors.Wrap(err, "unable to scan value")
+		}
+		fmt.Println(data)
+	}
 	_, err = d.db.Exec(res)
 	if err != nil {
 	  return errors.Wrap(err, "unable to execute statement")
@@ -47,7 +67,7 @@ func (d *FindResult) constructFindStatement(tableName string, nonEmptyFields []m
 	stat += " WHERE "
 	data := make([]string, 0, len(nonEmptyFields))
 	for _, f := range nonEmptyFields {
-		data = append(data, fmt.Sprintf("%s=%s ", f.Key, f.Value))
+		data = append(data, fmt.Sprintf("%s='%s' ", f.Key, f.Value))
 	}
 	stat += strings.Join(data, "AND")
 	return stat, nil
