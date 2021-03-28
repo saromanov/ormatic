@@ -101,6 +101,7 @@ func (o *Ormatic) create(models ...interface{}) error {
 func (o *Ormatic) find(q interface{}) *FindResult {
 	fields, err := getFieldsFromStruct(q)
 	res := &FindResult{
+		table: getObjectName(q),
 	}
 	if err != nil {
 		res.err = errors.Wrap(err, "unable to get fields from the struct")
