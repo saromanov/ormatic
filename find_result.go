@@ -46,12 +46,16 @@ func (d *FindResult) Do(dest interface{}) error {
 	}()
 
 	for rows.Next(){
-		var data interface{}
-		var data2 interface{}
-		if err := rows.Scan(&data, &data2); err != nil {
+		data := make([]interface{}, 2)
+		for i, _ := range data {
+			var res interface{}
+			data[i] = &res
+		}
+		if err := rows.Scan(data...); err != nil {
 			return errors.Wrap(err, "unable to scan value")
 		}
-		fmt.Println(data)
+		first := data[0]
+		fmt.Println(first.(*interface{}))
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
@@ -60,6 +64,8 @@ func (d *FindResult) Do(dest interface{}) error {
 	return nil
 }
 
+// constructFindStatement provides constructing find statement
+// like SELECT * FROM value1=foo AND value2=bar;
 func (d *FindResult) constructFindStatement(tableName string, nonEmptyFields []models.Pair) (string, error) {
 	stat := "SELECT * FROM " + tableName
 	if len(nonEmptyFields) == 0 {
@@ -74,9 +80,10 @@ func (d *FindResult) constructFindStatement(tableName string, nonEmptyFields []m
 	return stat, nil
 }
 
+// check if value is a string then add it with commas
 func (d *FindResult) setValue(value interface{}) string {
 	if reflect.ValueOf(value).Kind() == reflect.String {
-		return fmt.Sprintf("'%v'", value)
+		return fmt.Sprintf("'%s'", value)
 	}
 	return fmt.Sprintf("%v", value)
 }
