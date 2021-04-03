@@ -20,6 +20,13 @@ type FindResult struct {
 	nonEmptyFields []models.Pair
 	selectedFields []models.Pair
 	fields         []models.Pair
+	properies FindProperties
+}
+
+// FindProperties defines properties for find
+type FindProperties struct {
+	limit uint
+	orderBy string 
 }
 
 // Do returns result of the query
@@ -30,7 +37,7 @@ func (d *FindResult) Do(dest interface{}) error {
 	if d.err != nil {
 		return d.err
 	}
-	res, err := d.constructFindStatement(d.table, d.nonEmptyFields)
+	res, err := d.constructFindStatement()
 	if err != nil {
 		return err
 	}
@@ -66,17 +73,23 @@ func (d *FindResult) Do(dest interface{}) error {
 
 // constructFindStatement provides constructing find statement
 // like SELECT * FROM value1=foo AND value2=bar;
-func (d *FindResult) constructFindStatement(tableName string, nonEmptyFields []models.Pair) (string, error) {
-	stat := "SELECT * FROM " + tableName
-	if len(nonEmptyFields) == 0 {
+func (d *FindResult) constructFindStatement() (string, error) {
+	stat := "SELECT * FROM " + d.table
+	if len(d.nonEmptyFields) == 0 {
 		return stat + ";", nil
 	}
 	stat += " WHERE "
-	data := make([]string, 0, len(nonEmptyFields))
-	for _, f := range nonEmptyFields {
+	data := make([]string, 0, len(d.nonEmptyFields))
+	for _, f := range d.nonEmptyFields {
 		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
 	stat += strings.Join(data, "AND")
+	if d.properies.orderBy != "" {
+		stat += " ORDER BY " + d.properies.orderBy
+	}
+	if d.properies.limit != 0 {
+		stat += fmt.Sprintf(" LIMIT %d", d.properies.limit)
+	}
 	return stat, nil
 }
 
