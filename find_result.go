@@ -30,21 +30,20 @@ type FindProperties struct {
 }
 
 // Do returns result of the query
-func (d *FindResult) Do(dest interface{}) error {
+func (d *FindResult) Do() ([][]interface{}, error) {
 	if d.db == nil {
-		return errors.New("db is not defined")
+		return nil, errors.New("db is not defined")
 	}
 	if d.err != nil {
-		return d.err
+		return nil, d.err
 	}
 	res, err := d.constructFindStatement()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Println(res)
 	rows, err := d.db.Query(res)
 	if err != nil {
-		return errors.Wrap(err, "unable to query data")
+		return nil, errors.Wrap(err, "unable to query data")
 	}
 	defer func(){
 		if err := rows.Close(); err != nil {
@@ -54,36 +53,25 @@ func (d *FindResult) Do(dest interface{}) error {
 	
 	columns, err := rows.Columns()
 	if err != nil {
-	    return errors.Wrap(err, "unable to get number of columns") 
+	    return nil, errors.Wrap(err, "unable to get number of columns") 
 	}
-	values := make([]interface{}, len(columns))
-    valuePtrs := make([]interface{}, len(columns))
+	resp := [][]interface{}{}
 	for rows.Next(){
+		values := make([]interface{}, len(columns))
+		valuePtrs := make([]interface{}, len(columns))
 		for i := range columns {
             valuePtrs[i] = &values[i]
         }
 		if err := rows.Scan(valuePtrs...); err != nil {
-			return errors.Wrap(err, "unable to scan value")
+			return nil, errors.Wrap(err, "unable to scan value")
 		}
-		for i, col := range columns {
-            val := values[i]
-
-            b, ok := val.([]byte)
-            var v interface{}
-            if (ok) {
-                v = string(b)
-            } else {
-                v = val
-            }
-
-            fmt.Println(col, v)
-        }
+		resp = append(resp, values)
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
-	  return errors.Wrap(err, "unable to execute statement")
+	  return nil, errors.Wrap(err, "unable to execute statement")
 	}
-	return nil
+	return resp, nil
 }
 
 // constructFindStatement provides constructing find statement
