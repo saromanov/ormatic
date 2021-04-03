@@ -51,18 +51,33 @@ func (d *FindResult) Do(dest interface{}) error {
 			log.Println("unable to close rows: ", err)
 		}
 	}()
-
+	
+	columns, err := rows.Columns()
+	if err != nil {
+	    return errors.Wrap(err, "unable to get number of columns") 
+	}
+	values := make([]interface{}, len(columns))
+    valuePtrs := make([]interface{}, len(columns))
 	for rows.Next(){
-		data := make([]interface{}, 2)
-		for i, _ := range data {
-			var res interface{}
-			data[i] = &res
-		}
-		if err := rows.Scan(data...); err != nil {
+		for i := range columns {
+            valuePtrs[i] = &values[i]
+        }
+		if err := rows.Scan(valuePtrs...); err != nil {
 			return errors.Wrap(err, "unable to scan value")
 		}
-		first := data[0]
-		fmt.Println(first.(*interface{}))
+		for i, col := range columns {
+            val := values[i]
+
+            b, ok := val.([]byte)
+            var v interface{}
+            if (ok) {
+                v = string(b)
+            } else {
+                v = val
+            }
+
+            fmt.Println(col, v)
+        }
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
