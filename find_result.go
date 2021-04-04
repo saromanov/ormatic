@@ -30,7 +30,7 @@ type FindProperties struct {
 }
 
 // Do returns result of the query
-func (d *FindResult) Do() ([][]interface{}, error) {
+func (d *FindResult) Do() ([]map[string]interface{}, error) {
 	if d.db == nil {
 		return nil, errors.New("db is not defined")
 	}
@@ -41,6 +41,7 @@ func (d *FindResult) Do() ([][]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	rows, err := d.db.Query(res)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to query data")
@@ -55,17 +56,22 @@ func (d *FindResult) Do() ([][]interface{}, error) {
 	if err != nil {
 	    return nil, errors.Wrap(err, "unable to get number of columns") 
 	}
-	resp := [][]interface{}{}
+	resp := []map[string]interface{}{}
 	for rows.Next(){
 		values := make([]interface{}, len(columns))
 		valuePtrs := make([]interface{}, len(columns))
 		for i := range columns {
-            valuePtrs[i] = &values[i]
+			valuePtrs[i] = &values[i]
         }
 		if err := rows.Scan(valuePtrs...); err != nil {
 			return nil, errors.Wrap(err, "unable to scan value")
 		}
-		resp = append(resp, values)
+
+		row := map[string]interface{}{}
+		for i, v := range values {
+			row[columns[i]] = v
+		}
+		resp = append(resp, row)
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
