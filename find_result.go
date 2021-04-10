@@ -27,7 +27,7 @@ type FindResult struct {
 // FindProperties defines properties for find
 type FindProperties struct {
 	limit uint
-	orderBy string 
+	orderBy []string 
 }
 
 // One returns single result of the query
@@ -96,6 +96,18 @@ func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	return resp, nil
 }
 
+// Limit sets limit of results from the query
+func (d*FindResult) Limit(limit uint) *FindResult {
+	d.properies.limit = limit
+	return d
+}
+
+// OrderBy sets params for sorring
+func (d *FindResult) OrderBy(params []string) *FindResult {
+	d.properies.orderBy = params
+	return d
+}
+
 // constructFindStatement provides constructing find statement
 // like SELECT * FROM value1=foo AND value2=bar;
 func (d *FindResult) constructFindStatement() (string, error) {
@@ -109,8 +121,8 @@ func (d *FindResult) constructFindStatement() (string, error) {
 		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
 	stat += strings.Join(data, "AND")
-	if d.properies.orderBy != "" {
-		stat += " ORDER BY " + d.properies.orderBy
+	if len(d.properies.orderBy) > 0 {
+		stat += " ORDER BY " + strings.Join(d.properies.orderBy, ",")
 	}
 	if d.properies.limit != 0 {
 		stat += fmt.Sprintf(" LIMIT %d", d.properies.limit)
