@@ -50,9 +50,17 @@ func main() {
 
 	resp, err := o.Find(&Book{
 		Title: "test",
-	}).Do(Book{})
+	}).Many(Book{})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("OUTPUT: ", resp[0].(Book))
+	fmt.Println("OUTPUT: ", resp)
+
+	respOne, err := o.Find(&Book{
+		Title: "test",
+	}).One(Book{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("OUTPUT: ", respOne.(Book))
 }

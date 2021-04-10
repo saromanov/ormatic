@@ -30,8 +30,20 @@ type FindProperties struct {
 	orderBy string 
 }
 
-// Do returns result of the query
-func (d *FindResult) Do(m interface{}) ([]interface{}, error) {
+// One returns single result of the query
+func (d *FindResult) One(m interface{}) (interface{}, error) {
+	d.limit = 1
+	result, err := d.Many(m)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to find data")
+	}
+	if len(result) == 0 {
+		return nil, nil
+	}
+	return result[0], nil
+}
+// Many returns multiple result of the query
+func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	if d.db == nil {
 		return nil, errors.New("db is not defined")
 	}
