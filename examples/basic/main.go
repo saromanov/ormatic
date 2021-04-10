@@ -50,9 +50,9 @@ func main() {
 
 	resp, err := o.Find(&Book{
 		Title: "test",
-	}).Do()
+	}).Do(Book{})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("OUTPUT: ", resp)
+	fmt.Println("OUTPUT: ", resp[0].(Book))
 }

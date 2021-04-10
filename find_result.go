@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/saromanov/ormatic/models"
 )
@@ -30,7 +31,7 @@ type FindProperties struct {
 }
 
 // Do returns result of the query
-func (d *FindResult) Do() ([]map[string]interface{}, error) {
+func (d *FindResult) Do(m interface{}) ([]interface{}, error) {
 	if d.db == nil {
 		return nil, errors.New("db is not defined")
 	}
@@ -56,7 +57,7 @@ func (d *FindResult) Do() ([]map[string]interface{}, error) {
 	if err != nil {
 	    return nil, errors.Wrap(err, "unable to get number of columns") 
 	}
-	resp := []map[string]interface{}{}
+	resp := []interface{}{}
 	for rows.Next(){
 		values := make([]interface{}, len(columns))
 		valuePtrs := make([]interface{}, len(columns))
@@ -71,7 +72,10 @@ func (d *FindResult) Do() ([]map[string]interface{}, error) {
 		for i, v := range values {
 			row[columns[i]] = v
 		}
-		resp = append(resp, row)
+		if err := mapstructure.Decode(row, &m); err != nil {
+			return nil, errors.Wrap(err, "unable to decode result to struct")
+		}
+		resp = append(resp, m)
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
