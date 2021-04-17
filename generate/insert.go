@@ -10,6 +10,7 @@ import (
 
 var (
 	errNoTableName = errors.New("table name is not defined")
+	errNoValues = errors.New("values is not defined")
 )
 
 // Insert provides generation of Insert
@@ -29,6 +30,9 @@ func Insert(tableName string, values []models.Pair) (string, []interface{}, erro
 	}
 	keysStr := strings.Join(keys, ",")
 	expr += keysStr + ") "
+	if len(nums) == 0 {
+		return "", nil, errNoValues
+	}
 	expr += "VALUES (" + strings.Join(nums, ",") + ")"
 	return expr, data, nil
 }
