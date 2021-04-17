@@ -21,13 +21,14 @@ type FindResult struct {
 	nonEmptyFields []models.Pair
 	selectedFields []models.Pair
 	fields         []models.Pair
-	properies FindProperties
+	properies      FindProperties
 }
 
 // FindProperties defines properties for find
 type FindProperties struct {
-	limit uint
-	orderBy []string 
+	limit   uint
+	orderBy []string
+	or      []models.Pair
 }
 
 // One returns single result of the query
@@ -42,6 +43,7 @@ func (d *FindResult) One(m interface{}) (interface{}, error) {
 	}
 	return result[0], nil
 }
+
 // Many returns multiple result of the query
 func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	if d.db == nil {
@@ -54,28 +56,28 @@ func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	rows, err := d.db.Query(res)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to query data")
 	}
-	defer func(){
+	defer func() {
 		if err := rows.Close(); err != nil {
 			log.Println("unable to close rows: ", err)
 		}
 	}()
-	
+
 	columns, err := rows.Columns()
 	if err != nil {
-	    return nil, errors.Wrap(err, "unable to get number of columns") 
+		return nil, errors.Wrap(err, "unable to get number of columns")
 	}
 	resp := []interface{}{}
-	for rows.Next(){
+	for rows.Next() {
 		values := make([]interface{}, len(columns))
 		valuePtrs := make([]interface{}, len(columns))
 		for i := range columns {
 			valuePtrs[i] = &values[i]
-        }
+		}
 		if err := rows.Scan(valuePtrs...); err != nil {
 			return nil, errors.Wrap(err, "unable to scan value")
 		}
@@ -91,13 +93,13 @@ func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	}
 	_, err = d.db.Exec(res)
 	if err != nil {
-	  return nil, errors.Wrap(err, "unable to execute statement")
+		return nil, errors.Wrap(err, "unable to execute statement")
 	}
 	return resp, nil
 }
 
 // Limit sets limit of results from the query
-func (d*FindResult) Limit(limit uint) *FindResult {
+func (d *FindResult) Limit(limit uint) *FindResult {
 	d.properies.limit = limit
 	return d
 }
@@ -105,6 +107,19 @@ func (d*FindResult) Limit(limit uint) *FindResult {
 // OrderBy sets params for sorring
 func (d *FindResult) OrderBy(params []string) *FindResult {
 	d.properies.orderBy = params
+	return d
+}
+
+// Or sets or at the where statement
+func (d *FindResult) Or(params map[string]interface{}) *FindResult {
+	result := []models.Pair{}
+	for key, value := range params {
+		result = append(result, models.Pair{
+			Key: key,
+			Value: value,
+		})
+	}
+	d.properies.or = result
 	return d
 }
 
@@ -121,6 +136,13 @@ func (d *FindResult) constructFindStatement() (string, error) {
 		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
 	stat += strings.Join(data, "AND")
+	if len(d.properies.or) > 0 {
+		data := make([]string, 0, len(d.nonEmptyFields))
+		for _, f := range d.nonEmptyFields {
+			data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
+		}
+		stat += strings.Join(data, "OR")
+	}
 	if len(d.properies.orderBy) > 0 {
 		stat += " ORDER BY " + strings.Join(d.properies.orderBy, ",")
 	}
