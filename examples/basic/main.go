@@ -11,13 +11,12 @@ import (
 type Book struct {
 	ID      int `orm:"PRIMARY_KEY,NOT_NULL"`
 	Title   string
-	Address Address
+	Address Address `db:"address_id" orm:"ON=book.id"`
 }
 
 type Address struct {
-	Name   string
-	Basic  Another
-	BookID int `orm:"ON=book.id"`
+	Name  string
+	Title string
 }
 
 type Another struct {

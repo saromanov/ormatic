@@ -122,5 +122,7 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 	if strings.Contains(tags, "index") {
 		res.Index = "index"
 	}
+	if strings.Contains(tags, "on") {
+	}
 	return res
 }
