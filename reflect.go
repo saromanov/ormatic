@@ -92,6 +92,17 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 				Tags: parseTableTags(v.Type().Field(j).Tag),
 			})
 		case reflect.Struct:
+			tags := v.Type().Field(j).Tag.Get("orm")
+			for _, t := range strings.Split(tags, ",") {
+				if strings.Contains(t, "on") {
+					res := strings.Split(t, "=")
+					root.Relationships = []models.Relationship{
+						models.Relationship{
+							TableName: res[1],
+						},
+					}
+				}
+			}
 			inner, err := getStructFieldsTypes(v.Field(j).Addr().Interface())
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get struct field")
@@ -121,8 +132,6 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 	}
 	if strings.Contains(tags, "index") {
 		res.Index = "index"
-	}
-	if strings.Contains(tags, "on") {
 	}
 	return res
 }
