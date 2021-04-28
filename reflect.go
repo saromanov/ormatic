@@ -37,6 +37,9 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 		if valueField.IsZero() || valueField.IsZero() {
 			continue
 		}
+		if valueField.Kind() == reflect.Struct {
+			continue
+		}
 		typeField := val.Type().Field(i)
 		tag := typeField.Tag
 		dbTag := tag.Get(dbField)

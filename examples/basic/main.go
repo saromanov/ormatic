@@ -36,16 +36,20 @@ func main() {
 		panic(err)
 	}
 
-	if err := o.Create(&Book{}); err != nil {
-		panic(err)
-	}
-
-	/*if err := o.Save(&Book{
-		ID:    15,
-		Title: "test",
-	}); err != nil {
+	/*if err := o.Create(&Book{}); err != nil {
 		panic(err)
 	}*/
+
+	if err := o.Save(&Book{
+		ID:    15,
+		Title: "test",
+		Address: Address{
+			Name: "Moskva",
+			Title: "builing",
+		},
+	}); err != nil {
+		panic(err)
+	}
 
 	resp, err := o.Find(&Book{
 		Title: "test",
