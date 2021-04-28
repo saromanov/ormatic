@@ -153,6 +153,7 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 			return errors.Wrap(err, "unable to execute data")
 		}
 
+		fmt.Println("RELS: ", m.Relationships)
 		if len(m.Relationships) > 0 {
 			for _, r := range m.Relationships {
 				constraint := fmt.Sprintf("fk_%s%s%s", m.TableName, r.TableName, "test")

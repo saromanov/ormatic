@@ -93,7 +93,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 			})
 		case reflect.Struct:
 			tags := v.Type().Field(j).Tag.Get("orm")
-			for _, t := range strings.Split(tags, ",") {
+			for _, t := range strings.Split(strings.ToLower(tags), ",") {
 				if strings.Contains(t, "on") {
 					res := strings.Split(t, "=")
 					table, column, err := getTableAndColumnFromRels(res[1])
@@ -103,8 +103,8 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 					root.Relationships = []models.Relationship{
 						models.Relationship{
 							TableName: table,
-							Column: column,
-							Parent: root.TableName,
+							Column:    column,
+							Parent:    root.TableName,
 						},
 					}
 				}
@@ -142,9 +142,9 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 	return res
 }
 
-func getTableAndColumnFromRels(data string)(string, string, error) {
+func getTableAndColumnFromRels(data string) (string, string, error) {
 	result := strings.Split(data, ".")
-	if len(data) != 2 {
+	if len(result) != 2 {
 		return "", "", errors.New("unable to parse relationship tag")
 	}
 	return result[0], result[1], nil
