@@ -96,9 +96,15 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 			for _, t := range strings.Split(tags, ",") {
 				if strings.Contains(t, "on") {
 					res := strings.Split(t, "=")
+					table, column, err := getTableAndColumnFromRels(res[1])
+					if err != nil {
+						return nil, err
+					}
 					root.Relationships = []models.Relationship{
 						models.Relationship{
-							TableName: res[1],
+							TableName: table,
+							Column: column,
+							Parent: root.TableName,
 						},
 					}
 				}
@@ -134,4 +140,12 @@ func parseTableTags(s reflect.StructTag) models.Tags {
 		res.Index = "index"
 	}
 	return res
+}
+
+func getTableAndColumnFromRels(data string)(string, string, error) {
+	result := strings.Split(data, ".")
+	if len(data) != 2 {
+		return "", "", errors.New("unable to parse relationship tag")
+	}
+	return result[0], result[1], nil
 }
