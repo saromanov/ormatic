@@ -105,6 +105,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 							TableName: table,
 							Column:    column,
 							Parent:    root.TableName,
+							Name: column,
 						},
 					}
 				}
