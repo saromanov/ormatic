@@ -26,6 +26,7 @@ var goTypeToSqlType = map[string]string{
 }
 
 // getFieldsFromStruct returns list of fields with db tag
+// and parse of inner structure
 func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 	values := []models.Pair{}
 	if ok := isStruct(d); !ok {
