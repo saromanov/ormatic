@@ -41,11 +41,11 @@ func main() {
 	}*/
 
 	if err := o.Save(&Book{
-		ID:    15,
+		ID:    17,
 		Title: "test",
 		Address: Address{
-			Name: "Moskva",
-			Title: "builing",
+			Name: "Moskvaa",
+			Title: "builinga",
 		},
 	}); err != nil {
 		panic(err)

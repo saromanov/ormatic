@@ -1,6 +1,7 @@
 package ormatic
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -39,6 +40,11 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			continue
 		}
 		if valueField.Kind() == reflect.Struct {
+			statement, err := generateJoinStatement(val.Type().Field(i).Tag.Get("orm"))
+			if err != nil {
+				return nil, fmt.Errorf("unable to generate join statement")
+			}
+			fmt.Println(statement)
 			continue
 		}
 		typeField := val.Type().Field(i)
@@ -64,6 +70,10 @@ func getObjectName(d interface{}) string {
 	}
 	return strings.ToLower(t.Name())
 }
+
+func generateJoinStatement(data string) (string, error) {
+	return "", nil
+} 
 
 func isStruct(d interface{}) bool {
 	switch reflect.ValueOf(d).Kind() {
@@ -109,7 +119,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 							TableName: table,
 							Column:    column,
 							Parent:    root.TableName,
-							Name: column,
+							Name:      column,
 						},
 					}
 				}

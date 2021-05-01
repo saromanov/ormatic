@@ -71,6 +71,7 @@ func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get number of columns")
 	}
+	fmt.Println("COLUMS: ", columns)
 	resp := []interface{}{}
 	for rows.Next() {
 		values := make([]interface{}, len(columns))
