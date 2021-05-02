@@ -40,6 +40,11 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			continue
 		}
 		if valueField.Kind() == reflect.Struct {
+			fields, err := getStructFieldsTypes(val.Field(i).Addr().Interface())
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get struct fields")
+			}
+			fmt.Println("FIELDS: ", fields)
 			statement, err := generateJoinStatement(val.Type().Field(i).Tag.Get("orm"))
 			if err != nil {
 				return nil, fmt.Errorf("unable to generate join statement")

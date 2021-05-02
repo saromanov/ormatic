@@ -42,7 +42,7 @@ func main() {
 	}*/
 
 	if err := o.Save(&Book{
-		ID:    20,
+		ID:    24,
 		Title: "test",
 		Address: Address{
 			Name: "Moskvaa",
