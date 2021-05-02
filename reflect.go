@@ -44,12 +44,21 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get struct fields")
 			}
-			fmt.Println("FIELDS: ", fields)
-			statement, err := generateJoinStatement(val.Type().Field(i).Tag.Get("orm"))
+			primary, tableName, err := getPrimaryKeyField(fields)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get primary key from struct")
+			}
+			statement, err := generateJoinStatement(val.Type().Field(i).Tag.Get("orm"), tableName, primary.Name)
 			if err != nil {
 				return nil, fmt.Errorf("unable to generate join statement")
 			}
 			fmt.Println(statement)
+			values = append(values, models.Pair{
+				Join: models.Join{
+					Source:"",
+					Target:"",
+				},
+			})
 			continue
 		}
 		typeField := val.Type().Field(i)
@@ -76,17 +85,20 @@ func getObjectName(d interface{}) string {
 	return strings.ToLower(t.Name())
 }
 
-func generateJoinStatement(data string) (string, error) {
+func generateJoinStatement(data, tableName, key string) (models.Join, error) {
 	data = strings.ToLower(data)
+	result := models.Join{}
 	if !strings.Contains(data, "on") {
-		return "", nil
+		return result, nil
 	}
 	splitter := strings.Split(data, "=")
 	if len(splitter) != 2 {
-		return "", nil
+		return result, nil
 	}
 	fmt.Println("SSS: ", splitter[1])
-	return "", nil
+	result.Target = splitter[1]
+	result.Source = fmt.Sprintf("%s.%s", tableName, key)
+	return result, nil
 } 
 
 func isStruct(d interface{}) bool {
@@ -177,4 +189,16 @@ func getTableAndColumnFromRels(data string) (string, string, error) {
 		return "", "", errors.New("unable to parse relationship tag")
 	}
 	return result[0], result[1], nil
+}
+
+// return primary key from slice of fields
+func getPrimaryKeyField(data []models.Create) (models.TableField, string, error) {
+	for _, d := range data {
+		for _, f := range d.TableFields {
+			if f.Tags.PrimaryKey {
+				return f, d.TableName, nil
+			}
+		}
+	}
+	return models.TableField{}, "", errors.New("unable to find primary key")
 }
