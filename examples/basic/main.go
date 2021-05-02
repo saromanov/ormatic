@@ -15,6 +15,7 @@ type Book struct {
 }
 
 type Address struct {
+	ID int `orm:"PRIMARY_KEY,NOT_NULL"`
 	Name  string
 	Title string
 }
@@ -41,7 +42,7 @@ func main() {
 	}*/
 
 	if err := o.Save(&Book{
-		ID:    17,
+		ID:    20,
 		Title: "test",
 		Address: Address{
 			Name: "Moskvaa",

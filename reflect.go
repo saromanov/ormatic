@@ -72,6 +72,15 @@ func getObjectName(d interface{}) string {
 }
 
 func generateJoinStatement(data string) (string, error) {
+	data = strings.ToLower(data)
+	if !strings.Contains(data, "on") {
+		return "", nil
+	}
+	splitter := strings.Split(data, "=")
+	if len(splitter) != 2 {
+		return "", nil
+	}
+	fmt.Println("SSS: ", splitter[1])
 	return "", nil
 } 
 
