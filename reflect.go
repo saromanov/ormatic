@@ -152,6 +152,12 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 					}
 				}
 			}
+			/*root.TableFields = append(root.TableFields, models.TableField{
+				Name: getColumnName(v.Type().Field(j), v.Type().Field(j).Tag),
+				Type: goTypeToSqlType[f.Type().String()],
+				Tags: parseTableTags(v.Type().Field(j).Tag),
+			})*/
+
 			inner, err := getStructFieldsTypes(v.Field(j).Addr().Interface())
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get struct field")

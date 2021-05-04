@@ -123,8 +123,9 @@ func (o *Ormatic) delete(d interface{}) error {
 // consructCreateTable provides generation of the create
 // table statement
 func (o *Ormatic) constructCreateTable(models []models.Create) error {
+	text := "BEGIN TRANSACTION;\n"
 	for _, m := range models {
-		text := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
+		text += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s", m.TableName)
 		if len(m.TableFields) == 0 {
 			_, err := o.exec(text)
 			if err != nil {
@@ -148,20 +149,18 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 				text += ","
 			}
 		}
-		text += ")"
-		if _, err := o.exec(text); err != nil {
-			return errors.Wrap(err, "unable to execute data")
-		}
-
+		text += ");"
 		if len(m.Relationships) > 0 {
 			for _, r := range m.Relationships {
 				constraint := fmt.Sprintf("fk_%s%s%s", m.TableName, r.TableName, "test")
-				execCmd := fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)", m.TableName, constraint, r.Name, r.TableName, r.Column)
-				if _, err := o.exec(execCmd); err != nil {
-					return errors.Wrap(err, "unable to execute data")
-				}
+				text += fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s);", m.TableName, constraint, r.Name, r.TableName, r.Column)
 			}
 		}
+		text += "\n"
+	}
+	text+= "\nCOMMIT;"
+	if _, err := o.exec(text); err != nil {
+		return errors.Wrap(err, "unable to execute data")
 	}
 	return nil
 }
