@@ -48,14 +48,14 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get primary key from struct")
 			}
-			statement, err := generateJoinStatement(val.Type().Field(i).Tag.Get("orm"), tableName, primary.Name)
+			statement, err := getTagsFromRelationships(val.Type().Field(i).Tag.Get("orm"), tableName, primary.Name)
 			if err != nil {
 				return nil, fmt.Errorf("unable to generate join statement")
 			}
-			fmt.Println(statement)
+			fmt.Println("STAT: ", statement.Source)
 			values = append(values, models.Pair{
-				Key: primary.Name,
-				Value: "",
+				Key: "address_id",
+				Value: 10,
 				Join: models.Join{
 					Source:"",
 					Target:"",
@@ -87,17 +87,16 @@ func getObjectName(d interface{}) string {
 	return strings.ToLower(t.Name())
 }
 
-func generateJoinStatement(data, tableName, key string) (models.Join, error) {
-	data = strings.ToLower(data)
+func getTagsFromRelationships(dbTag, tableName, key string) (models.Join, error) {
+	dbTag = strings.ToLower(dbTag)
 	result := models.Join{}
-	if !strings.Contains(data, "on") {
+	if !strings.Contains(dbTag, "on") {
 		return result, nil
 	}
-	splitter := strings.Split(data, "=")
+	splitter := strings.Split(dbTag, "=")
 	if len(splitter) != 2 {
 		return result, nil
 	}
-	fmt.Println("SSS: ", splitter[1])
 	result.Target = splitter[1]
 	result.Source = fmt.Sprintf("%s.%s", tableName, key)
 	return result, nil
@@ -152,11 +151,11 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 					}
 				}
 			}
-			/*root.TableFields = append(root.TableFields, models.TableField{
+			root.TableFields = append(root.TableFields, models.TableField{
 				Name: getColumnName(v.Type().Field(j), v.Type().Field(j).Tag),
-				Type: goTypeToSqlType[f.Type().String()],
+				Type: goTypeToSqlType["int"],
 				Tags: parseTableTags(v.Type().Field(j).Tag),
-			})*/
+			})
 
 			inner, err := getStructFieldsTypes(v.Field(j).Addr().Interface())
 			if err != nil {

@@ -37,12 +37,12 @@ func main() {
 		panic(err)
 	}
 
-	if err := o.Create(&Book{}); err != nil {
+	/*if err := o.Create(&Book{}); err != nil {
 		panic(err)
-	}
+	}*/
 
 	if err := o.Save(&Book{
-		ID:    55,
+		ID:    56,
 		Title: "test",
 		Address: Address{
 			ID: 10,

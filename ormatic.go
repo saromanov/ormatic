@@ -151,14 +151,15 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		}
 		text += ");"
 		if len(m.Relationships) > 0 {
-			for _, r := range m.Relationships {
+			/*for _, r := range m.Relationships {
 				constraint := fmt.Sprintf("fk_%s%s%s", m.TableName, r.TableName, "test")
 				text += fmt.Sprintf("ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s);", m.TableName, constraint, r.Name, r.TableName, r.Column)
-			}
+			}*/
 		}
 		text += "\n"
 	}
 	text+= "\nCOMMIT;"
+	fmt.Println("TEXT: ", text)
 	if _, err := o.exec(text); err != nil {
 		return errors.Wrap(err, "unable to execute data")
 	}
