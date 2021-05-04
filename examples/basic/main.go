@@ -11,7 +11,7 @@ import (
 type Book struct {
 	ID      int `orm:"PRIMARY_KEY,NOT_NULL"`
 	Title   string
-	Address Address `db:"address_id" orm:"ON=book.address_id"`
+	Address Address `db:"address_id" orm:"ON=address.id"`
 }
 
 type Address struct {
@@ -42,9 +42,10 @@ func main() {
 	}*/
 
 	if err := o.Save(&Book{
-		ID:    29,
+		ID:    55,
 		Title: "test",
 		Address: Address{
+			ID: 10,
 			Name: "Moskvaa",
 			Title: "builinga",
 		},

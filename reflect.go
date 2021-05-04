@@ -54,6 +54,8 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			}
 			fmt.Println(statement)
 			values = append(values, models.Pair{
+				Key: primary.Name,
+				Value: "",
 				Join: models.Join{
 					Source:"",
 					Target:"",
@@ -127,7 +129,7 @@ func getStructFieldsTypes(d interface{}) ([]models.Create, error) {
 			reflect.Float32,
 			reflect.Float64:
 			root.TableFields = append(root.TableFields, models.TableField{
-				Name: strings.ToLower(v.Type().Field(j).Name),
+				Name: getColumnName(v.Type().Field(j), v.Type().Field(j).Tag),
 				Type: goTypeToSqlType[f.Type().String()],
 				Tags: parseTableTags(v.Type().Field(j).Tag),
 			})
@@ -189,6 +191,16 @@ func getTableAndColumnFromRels(data string) (string, string, error) {
 		return "", "", errors.New("unable to parse relationship tag")
 	}
 	return result[0], result[1], nil
+}
+
+// return column name. If db tag is empty
+// then return defined name
+func getColumnName(sf reflect.StructField, tag reflect.StructTag) string {
+	dbTag := tag.Get("db")
+	if dbTag == "" {
+		return strings.ToLower(sf.Name)
+	}
+	return dbTag
 }
 
 // return primary key from slice of fields
