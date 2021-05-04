@@ -42,10 +42,10 @@ func main() {
 	}*/
 
 	if err := o.Save(&Book{
-		ID:    56,
+		ID:    59,
 		Title: "test",
 		Address: Address{
-			ID: 10,
+			ID: 15,
 			Name: "Moskvaa",
 			Title: "builinga",
 		},

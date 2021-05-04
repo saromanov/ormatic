@@ -48,18 +48,19 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get primary key from struct")
 			}
-			statement, err := getTagsFromRelationships(val.Type().Field(i).Tag.Get("orm"), tableName, primary.Name)
+			statement, err := getTagsFromRelationships(val.Type().Field(i).Tag, tableName, primary.Name)
 			if err != nil {
-				return nil, fmt.Errorf("unable to generate join statement")
+				return nil, errors.Wrap(err, "unable to get tags from relationships")
 			}
-			fmt.Println("STAT: ", statement.Source)
+
+			child := reflect.ValueOf(val.Field(i).Addr().Interface()).Elem()
+			primValue, err := getPrimaryKeyValue(child, statement.Source)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get primary key value")
+			}
 			values = append(values, models.Pair{
-				Key: "address_id",
-				Value: 10,
-				Join: models.Join{
-					Source:"",
-					Target:"",
-				},
+				Key:   statement.Target,
+				Value: primValue,
 			})
 			continue
 		}
@@ -87,8 +88,8 @@ func getObjectName(d interface{}) string {
 	return strings.ToLower(t.Name())
 }
 
-func getTagsFromRelationships(dbTag, tableName, key string) (models.Join, error) {
-	dbTag = strings.ToLower(dbTag)
+func getTagsFromRelationships(tags reflect.StructTag, tableName, key string) (models.Join, error) {
+	dbTag := strings.ToLower(tags.Get("orm"))
 	result := models.Join{}
 	if !strings.Contains(dbTag, "on") {
 		return result, nil
@@ -97,11 +98,19 @@ func getTagsFromRelationships(dbTag, tableName, key string) (models.Join, error)
 	if len(splitter) != 2 {
 		return result, nil
 	}
-	result.Target = splitter[1]
-	result.Source = fmt.Sprintf("%s.%s", tableName, key)
+	result.Target = tags.Get("db")
+	result.Source = key
 	return result, nil
-} 
+}
 
+func getPrimaryKeyValue(child reflect.Value, source interface{}) (interface{}, error) {
+	for j := 0; j < child.NumField(); j++ {
+		if strings.ToLower(child.Type().Field(j).Name) == source {
+			return child.Field(j).Interface(), nil
+		}
+	}
+	return nil, fmt.Errorf("unable to get primary key value")
+}
 func isStruct(d interface{}) bool {
 	switch reflect.ValueOf(d).Kind() {
 	case reflect.Struct:
