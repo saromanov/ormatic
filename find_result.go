@@ -22,7 +22,7 @@ type FindResult struct {
 	selectedFields []models.Pair
 	fields         []models.Pair
 	properies      FindProperties
-	joins          []models.Join
+	joins          []string
 }
 
 // FindProperties defines properties for find
@@ -114,7 +114,7 @@ func (d *FindResult) OrderBy(params []string) *FindResult {
 
 // Join provides joining of the tables
 func (d *FindResult) Join(t interface{}) *FindResult {
-	d.joins = append(d.joins, t)
+	d.joins = append(d.joins, getObjectName(t))
 	return d
 }
 

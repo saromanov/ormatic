@@ -36,9 +36,6 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 	val := reflect.ValueOf(d).Elem()
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
-		if valueField.IsZero() || valueField.IsZero() {
-			continue
-		}
 		if valueField.Kind() == reflect.Struct {
 			fields, err := getStructFieldsTypes(val.Field(i).Addr().Interface())
 			if err != nil {
@@ -64,8 +61,12 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 				Join: models.Join{
 					Source: statement.Source,
 					Target: statement.Target,
+					Table: tableName,
 				},
 			})
+			continue
+		}
+		if valueField.IsZero() || valueField.IsZero() {
 			continue
 		}
 		typeField := val.Type().Field(i)

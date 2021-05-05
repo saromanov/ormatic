@@ -1,12 +1,13 @@
 package models
 
 type Pair struct {
-	Key string
+	Key   string
 	Value interface{}
-	Join Join
+	Join  Join
 }
 
 type Join struct {
 	Source string
 	Target string
+	Table  string
 }
