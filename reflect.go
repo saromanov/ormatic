@@ -61,6 +61,10 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 			values = append(values, models.Pair{
 				Key:   statement.Target,
 				Value: primValue,
+				Join: models.Join{
+					Source: statement.Source,
+					Target: statement.Target,
+				},
 			})
 			continue
 		}

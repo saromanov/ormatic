@@ -22,6 +22,7 @@ type FindResult struct {
 	selectedFields []models.Pair
 	fields         []models.Pair
 	properies      FindProperties
+	joins          []models.Join
 }
 
 // FindProperties defines properties for find
@@ -111,12 +112,18 @@ func (d *FindResult) OrderBy(params []string) *FindResult {
 	return d
 }
 
+// Join provides joining of the tables
+func (d *FindResult) Join(t interface{}) *FindResult {
+	d.joins = append(d.joins, t)
+	return d
+}
+
 // Or sets or at the where statement
 func (d *FindResult) Or(params map[string]interface{}) *FindResult {
 	result := []models.Pair{}
 	for key, value := range params {
 		result = append(result, models.Pair{
-			Key: key,
+			Key:   key,
 			Value: value,
 		})
 	}
@@ -134,6 +141,10 @@ func (d *FindResult) constructFindStatement() (string, error) {
 	stat += " WHERE "
 	data := make([]string, 0, len(d.nonEmptyFields))
 	for _, f := range d.nonEmptyFields {
+		fmt.Println(f.Join)
+		if f.Join.Source != "" {
+			fmt.Println("SOURCE: ", f.Join.Source)
+		}
 		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
 	stat += strings.Join(data, "AND")
