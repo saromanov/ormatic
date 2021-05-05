@@ -1,29 +1,30 @@
 package generate
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/saromanov/ormatic/models"
 )
 
 var (
 	errNoTableName = errors.New("table name is not defined")
-	errNoValues = errors.New("values is not defined")
+	errNoValues    = errors.New("values is not defined")
 )
 
 // Insert provides generation of Insert
-func Insert(tableName string, values []models.Pair) (string, []interface{}, error) {
-	if tableName == "" {
+func Insert(value models.Insert) (string, []interface{}, error) {
+	if value.TableName == "" {
 		return "", nil, errNoTableName
 	}
-	expr := fmt.Sprintf("INSERT INTO %s (", tableName)
-	num := len(values)
+	expr := ""
+	expr += fmt.Sprintf("INSERT INTO %s (", value.TableName)
+	num := len(value.Pairs)
 	keys := make([]string, num)
 	nums := make([]string, num)
 	data := make([]interface{}, num)
-	for i, v := range values {
+	for i, v := range value.Pairs {
 		keys[i] = v.Key
 		data[i] = v.Value
 		nums[i] = fmt.Sprintf("$%d", i+1)

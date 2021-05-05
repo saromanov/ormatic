@@ -41,21 +41,21 @@ func main() {
 		panic(err)
 	}*/
 
-	/*if err := o.Save(&Book{
-		ID:    59,
+	if err := o.Save(&Book{
+		ID:    68,
 		Title: "test",
 		Address: Address{
-			ID: 15,
+			ID: 22,
 			Name: "Moskvaa",
 			Title: "builinga",
 		},
 	}); err != nil {
 		panic(err)
-	}*/
+	}
 
 	resp, err := o.Find(&Book{
 		Title: "test",
-	}).Join(Address{}).Many(Book{})
+	}).Join("", Address{}).Many(Book{})
 	if err != nil {
 		panic(err)
 	}

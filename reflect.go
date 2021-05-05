@@ -75,11 +75,72 @@ func getFieldsFromStruct(d interface{}) ([]models.Pair, error) {
 		if dbTag == "" {
 			dbTag = strings.ToLower(typeField.Name)
 		}
-		values = append(values, models.Pair{Key: dbTag,
+		values = append(values, models.Pair{
+			Key: dbTag,
 			Value: valueField.Interface(),
 		})
 	}
 	return values, nil
+}
+
+// prepareInsert returns prepared data for insert
+func prepareInsert(d interface{}) ([]models.Insert, error) {
+	if ok := isStruct(d); !ok {
+		return nil, errNoStruct
+	}
+	tableName := getObjectName(d)
+	val := reflect.ValueOf(d).Elem()
+	ins := models.Insert{
+		TableName: tableName,
+	}
+	for i := 0; i < val.NumField(); i++ {
+		valueField := val.Field(i)
+		if valueField.Kind() == reflect.Struct {
+			fields, err := getStructFieldsTypes(val.Field(i).Addr().Interface())
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get struct fields")
+			}
+			primary, tableName, err := getPrimaryKeyField(fields)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get primary key from struct")
+			}
+			statement, err := getTagsFromRelationships(val.Type().Field(i).Tag, tableName, primary.Name)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get tags from relationships")
+			}
+
+			child := reflect.ValueOf(val.Field(i).Addr().Interface()).Elem()
+			primValue, err := getPrimaryKeyValue(child, statement.Source)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get primary key value")
+			}
+			fmt.Println("PRIM: ", primValue)
+			/*values = append(values, models.Pair{
+				Key:   statement.Target,
+				Value: primValue,
+				Join: models.Join{
+					Source: statement.Source,
+					Target: statement.Target,
+					Table: tableName,
+				},
+			})*/
+			continue
+		}
+		if valueField.IsZero() || valueField.IsZero() {
+			continue
+		}
+		typeField := val.Type().Field(i)
+		tag := typeField.Tag
+		dbTag := tag.Get(dbField)
+		if dbTag == "" {
+			dbTag = strings.ToLower(typeField.Name)
+		}
+		ins.Pairs = append(ins.Pairs, models.Pair{
+			Key: dbTag,
+			Value: valueField.Interface(),
+		})
+	}
+	return []models.Insert{ins}, nil
 }
 
 func getObjectName(d interface{}) string {

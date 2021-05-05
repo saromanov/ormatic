@@ -113,7 +113,7 @@ func (d *FindResult) OrderBy(params []string) *FindResult {
 }
 
 // Join provides joining of the tables
-func (d *FindResult) Join(t interface{}) *FindResult {
+func (d *FindResult) Join(joinType string, t interface{}) *FindResult {
 	d.joins = append(d.joins, getObjectName(t))
 	return d
 }
@@ -141,9 +141,8 @@ func (d *FindResult) constructFindStatement() (string, error) {
 	stat += " WHERE "
 	data := make([]string, 0, len(d.nonEmptyFields))
 	for _, f := range d.nonEmptyFields {
-		fmt.Println(f.Join)
 		if f.Join.Source != "" {
-			fmt.Println("SOURCE: ", f.Join.Source)
+			continue
 		}
 		data = append(data, fmt.Sprintf("%s=%s ", f.Key, d.setValue(f.Value)))
 	}
@@ -161,6 +160,7 @@ func (d *FindResult) constructFindStatement() (string, error) {
 	if d.properies.limit != 0 {
 		stat += fmt.Sprintf(" LIMIT %d", d.properies.limit)
 	}
+	fmt.Println("EXPR: ", stat)
 	return stat, nil
 }
 

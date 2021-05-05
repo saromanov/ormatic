@@ -42,7 +42,7 @@ func (o *Ormatic) Drop(table string) error {
 // Driver returns sql.DB driver
 func (o *Ormatic) Driver() *sql.DB {
 	return o.db
-} 
+}
 
 // Delete provides deleteing of data
 func (o *Ormatic) Delete(d interface{}) error {
@@ -54,19 +54,20 @@ func (o *Ormatic) Find(query interface{}) *FindResult {
 }
 
 func (o *Ormatic) save(d interface{}) error {
-	fields, err := getFieldsFromStruct(d)
+	fields, err := prepareInsert(d)
 	if err != nil {
 		return errors.Wrap(err, "unable to get fields from the struct")
 	}
-
-	tableName := getObjectName(d)
-	query, values, err := generate.Insert(tableName, fields)
-	if err != nil {
-		return errors.Wrap(err, "unable to generate statement")
-	}
-	_, err = o.db.Exec(query, values...)
-	if err != nil {
-		return errors.Wrap(err, "unable to insert data")
+	
+	for _, v := range fields {
+		query, values, err := generate.Insert(v)
+		if err != nil {
+			return errors.Wrap(err, "unable to generate statement")
+		}
+		_, err = o.db.Exec(query, values...)
+		if err != nil {
+			return errors.Wrap(err, "unable to insert data")
+		}
 	}
 	return nil
 }
@@ -102,7 +103,7 @@ func (o *Ormatic) find(q interface{}) *FindResult {
 	fields, err := getFieldsFromStruct(q)
 	res := &FindResult{
 		table: getObjectName(q),
-		db: o.db,
+		db:    o.db,
 	}
 	if err != nil {
 		res.err = errors.Wrap(err, "unable to get fields from the struct")
@@ -158,7 +159,7 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		}
 		text += "\n"
 	}
-	text+= "\nCOMMIT;"
+	text += "\nCOMMIT;"
 	fmt.Println("TEXT: ", text)
 	if _, err := o.exec(text); err != nil {
 		return errors.Wrap(err, "unable to execute data")
