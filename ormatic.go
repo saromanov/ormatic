@@ -58,7 +58,7 @@ func (o *Ormatic) save(d interface{}) error {
 	if err != nil {
 		return errors.Wrap(err, "unable to get fields from the struct")
 	}
-	
+
 	for _, v := range fields {
 		query, values, err := generate.Insert(v)
 		if err != nil {

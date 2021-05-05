@@ -90,12 +90,18 @@ func prepareInsert(d interface{}) ([]models.Insert, error) {
 	}
 	tableName := getObjectName(d)
 	val := reflect.ValueOf(d).Elem()
+	result := []models.Insert{}
 	ins := models.Insert{
 		TableName: tableName,
 	}
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
 		if valueField.Kind() == reflect.Struct {
+			res, err := prepareInsert(val.Field(i).Addr().Interface())
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to get structured field")
+			}
+			result = append(result, res...)
 			fields, err := getStructFieldsTypes(val.Field(i).Addr().Interface())
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get struct fields")
@@ -114,16 +120,10 @@ func prepareInsert(d interface{}) ([]models.Insert, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to get primary key value")
 			}
-			fmt.Println("PRIM: ", primValue)
-			/*values = append(values, models.Pair{
+			ins.Pairs = append(ins.Pairs, models.Pair{
 				Key:   statement.Target,
 				Value: primValue,
-				Join: models.Join{
-					Source: statement.Source,
-					Target: statement.Target,
-					Table: tableName,
-				},
-			})*/
+			})
 			continue
 		}
 		if valueField.IsZero() || valueField.IsZero() {
@@ -140,7 +140,8 @@ func prepareInsert(d interface{}) ([]models.Insert, error) {
 			Value: valueField.Interface(),
 		})
 	}
-	return []models.Insert{ins}, nil
+	result = append(result, ins)
+	return result, nil
 }
 
 func getObjectName(d interface{}) string {
