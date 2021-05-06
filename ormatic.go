@@ -49,6 +49,7 @@ func (o *Ormatic) Delete(d interface{}) error {
 	return o.delete(d)
 }
 
+// Find provides finding of the data
 func (o *Ormatic) Find(query interface{}) *FindResult {
 	return o.find(query)
 }

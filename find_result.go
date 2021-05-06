@@ -12,6 +12,15 @@ import (
 	"github.com/saromanov/ormatic/models"
 )
 
+type JoinType string
+
+const (
+	LeftJoin JoinType = "LEFT"
+	RightJoin JoinType = "RIGHT"
+	InnerJoin JoinType = "INNER"
+	DefaultJoin JoinType = ""
+)
+
 // FindResult returns
 type FindResult struct {
 	db             *sql.DB
@@ -23,6 +32,11 @@ type FindResult struct {
 	fields         []models.Pair
 	properies      FindProperties
 	joins          []string
+}
+
+type joinStatement struct {
+	table string
+	value string
 }
 
 // FindProperties defines properties for find
@@ -113,7 +127,7 @@ func (d *FindResult) OrderBy(params []string) *FindResult {
 }
 
 // Join provides joining of the tables
-func (d *FindResult) Join(joinType string, t interface{}) *FindResult {
+func (d *FindResult) Join(joinType JoinType, t interface{}) *FindResult {
 	d.joins = append(d.joins, getObjectName(t))
 	return d
 }

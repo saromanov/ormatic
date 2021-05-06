@@ -55,7 +55,7 @@ func main() {
 
 	resp, err := o.Find(&Book{
 		Title: "test",
-	}).Join("", Address{}).Many(Book{})
+	}).Join(ormatic.DefaultJoin, Address{}).Many(Book{})
 	if err != nil {
 		panic(err)
 	}
