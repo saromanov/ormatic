@@ -15,9 +15,9 @@ import (
 type JoinType string
 
 const (
-	LeftJoin JoinType = "LEFT"
-	RightJoin JoinType = "RIGHT"
-	InnerJoin JoinType = "INNER"
+	LeftJoin    JoinType = "LEFT"
+	RightJoin   JoinType = "RIGHT"
+	InnerJoin   JoinType = "INNER"
 	DefaultJoin JoinType = ""
 )
 
@@ -31,12 +31,13 @@ type FindResult struct {
 	selectedFields []models.Pair
 	fields         []models.Pair
 	properies      FindProperties
-	joins          []string
+	joins          []joinStatement
 }
 
 type joinStatement struct {
-	table string
-	value string
+	tableName string
+	table     interface{}
+	value     JoinType
 }
 
 // FindProperties defines properties for find
@@ -86,7 +87,6 @@ func (d *FindResult) Many(m interface{}) ([]interface{}, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get number of columns")
 	}
-	fmt.Println("COLUMS: ", columns)
 	resp := []interface{}{}
 	for rows.Next() {
 		values := make([]interface{}, len(columns))
@@ -128,7 +128,11 @@ func (d *FindResult) OrderBy(params []string) *FindResult {
 
 // Join provides joining of the tables
 func (d *FindResult) Join(joinType JoinType, t interface{}) *FindResult {
-	d.joins = append(d.joins, getObjectName(t))
+	d.joins = append(d.joins, joinStatement{
+		tableName: getObjectName(t),
+		table:     t,
+		value:     joinType,
+	})
 	return d
 }
 
