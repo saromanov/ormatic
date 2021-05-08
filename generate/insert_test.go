@@ -37,4 +37,15 @@ func TestInsertBasic(t *testing.T) {
 	assert.Equal(t, data, "INSERT INTO test2 (key,foo) VALUES ($1,$2)")
 	assert.Equal(t, "value", values[0].(string))
 	assert.Equal(t, "bar", values[1].(string))
+
+	_, _, err = Insert(models.Insert{
+		TableName: "test2",
+		Pairs: []models.Pair{models.Pair{
+			Key: "",
+			Value: "",
+		},
+	   },
+	})
+
+	assert.Error(t, err)
 }

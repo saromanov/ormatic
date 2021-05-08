@@ -11,6 +11,8 @@ import (
 var (
 	errNoTableName = errors.New("table name is not defined")
 	errNoValues    = errors.New("values is not defined")
+	errNoKey = errors.New("key is not defined")
+	errNoValue = errors.New("value is not defined")
 )
 
 // Insert provides generation of Insert
@@ -25,6 +27,12 @@ func Insert(value models.Insert) (string, []interface{}, error) {
 	nums := make([]string, num)
 	data := make([]interface{}, num)
 	for i, v := range value.Pairs {
+		if v.Key == "" {
+			return "", nil, errNoKey
+		}
+		if v.Value == nil {
+			return "", nil, errNoValue
+		}
 		keys[i] = v.Key
 		data[i] = v.Value
 		nums[i] = fmt.Sprintf("$%d", i+1)
