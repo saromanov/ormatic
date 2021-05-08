@@ -29,6 +29,14 @@ func (o *Ormatic) Create(d ...interface{}) error {
 	return o.create(d...)
 }
 
+// AddIndex provides adding of the index
+func (o *Ormatic) AddIndex(idx ...models.Index) error {
+	if len(idx) == 0 {
+		return nil
+	}
+	return o.addIndex(idx...)
+}
+
 // Save provides saving of the data
 func (o *Ormatic) Save(d interface{}) error {
 	return o.save(d)
@@ -122,6 +130,22 @@ func (o *Ormatic) delete(d interface{}) error {
 	return nil
 }
 
+func (o *Ormatic) addIndex(idxs ...models.Index) error {
+	text := "BEGIN TRANSACTION;\n"
+	for _, idx := range idxs {
+		if idx.Type != "" {
+			text += fmt.Sprintf("CREATE INDEX %s ON %s %s(%s)", idx.Name, idx.Table, idx.Type, idx.Column)
+			continue
+		}
+		text += fmt.Sprintf("CREATE INDEX %s ON %s (%s)", idx.Name, idx.Table, idx.Column)
+	}
+	text += "\nCOMMIT;"
+	if _, err := o.exec(text); err != nil {
+		return errors.Wrap(err, "unable to execute data")
+	}
+	return nil
+}
+
 // consructCreateTable provides generation of the create
 // table statement
 func (o *Ormatic) constructCreateTable(models []models.Create) error {
@@ -161,7 +185,6 @@ func (o *Ormatic) constructCreateTable(models []models.Create) error {
 		text += "\n"
 	}
 	text += "\nCOMMIT;"
-	fmt.Println("TEXT: ", text)
 	if _, err := o.exec(text); err != nil {
 		return errors.Wrap(err, "unable to execute data")
 	}
