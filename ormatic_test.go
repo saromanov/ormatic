@@ -32,6 +32,20 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, orm.Create(&Test1{}))
 }
 
+func TestInsert(t *testing.T) {
+	db := newDB(t)
+	dropTable(t, db, "test1")
+	defer db.Close()
+	orm, err := New(newDB(t))
+	assert.NoError(t, err)
+	assert.NoError(t, orm.Create(&Test1{}))
+	assert.NoError(t, orm.Save(&Test1{
+		ID: 1,
+		Title:"test",
+	}))
+	dropTable(t, db, "test1")
+}
+
 func newDB(t *testing.T) *sql.DB {
 	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
 		"tracer", "tracer", "tracer")
@@ -40,4 +54,11 @@ func newDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	return db
+}
+
+func dropTable(t *testing.T, db *sql.DB, name string) {
+	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", name))
+	if err != nil {
+		t.Fatal(err)
+	}
 }
