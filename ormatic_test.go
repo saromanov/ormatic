@@ -9,13 +9,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type Test1 struct {
+	ID      int `orm:"PRIMARY_KEY,NOT_NULL"`
+	Title   string
+}
+
 func TestNew(t *testing.T) {
 	_, err := New(nil)
 	assert.Error(t, err)
 
 	db := newDB(t)
 	_, err = New(db)
+	defer db.Close()
 	assert.NoError(t, err)
+}
+
+func TestCreate(t *testing.T) {
+	db := newDB(t)
+	defer db.Close()
+	orm, err := New(newDB(t))
+	assert.NoError(t, err)
+	assert.NoError(t, orm.Create(&Test1{}))
 }
 
 func newDB(t *testing.T) *sql.DB {
