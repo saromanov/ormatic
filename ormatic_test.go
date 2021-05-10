@@ -4,14 +4,21 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+
 	_ "github.com/lib/pq"
 
 	"github.com/stretchr/testify/assert"
 )
 
 type Test1 struct {
-	ID      int `orm:"PRIMARY_KEY,NOT_NULL"`
-	Title   string
+	ID    int `orm:"PRIMARY_KEY,NOT_NULL"`
+	Title string
+}
+
+type Test2 struct {
+	ID    int `orm:"PRIMARY_KEY,NOT_NULL"`
+	Title string
+	Test1 Test1 `db:"test1_id" orm:"ON=test2.id"`
 }
 
 func TestNew(t *testing.T) {
@@ -38,12 +45,21 @@ func TestInsert(t *testing.T) {
 	defer db.Close()
 	orm, err := New(newDB(t))
 	assert.NoError(t, err)
-	assert.NoError(t, orm.Create(&Test1{}))
+	assert.NoError(t, orm.Create(&Test1{}, &Test2{}))
 	assert.NoError(t, orm.Save(&Test1{
-		ID: 1,
-		Title:"test",
+		ID:    1,
+		Title: "test",
+	}))
+	assert.NoError(t, orm.Save(&Test2{
+		ID:    2,
+		Title: "test2",
+		Test1: Test1{
+			ID: 3,
+			Title:"test2",
+		},
 	}))
 	dropTable(t, db, "test1")
+	dropTable(t, db, "test2")
 }
 
 func newDB(t *testing.T) *sql.DB {
