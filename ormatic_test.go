@@ -58,6 +58,13 @@ func TestInsert(t *testing.T) {
 			Title:"test2",
 		},
 	}))
+	assert.Error(t, orm.Save(&Test2{
+		Title: "test2",
+		Test1: Test1{
+			ID: 3,
+			Title:"test2",
+		},
+	}))
 	dropTable(t, db, "test1")
 	dropTable(t, db, "test2")
 }
