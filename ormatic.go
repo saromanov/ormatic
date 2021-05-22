@@ -133,6 +133,9 @@ func (o *Ormatic) delete(d interface{}) error {
 func (o *Ormatic) addIndex(idxs ...models.Index) error {
 	text := "BEGIN TRANSACTION;\n"
 	for _, idx := range idxs {
+		if idx.Column == "" || idx.Name == "" || idx.Table == "" || idx.Type  == ""{
+			return errors.New("property of index is empty")
+		}
 		if idx.Type != "" {
 			text += fmt.Sprintf("CREATE INDEX %s ON %s %s(%s)", idx.Name, idx.Table, idx.Type, idx.Column)
 			continue

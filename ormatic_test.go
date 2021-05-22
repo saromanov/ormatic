@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
+	"github.com/saromanov/ormatic/models"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -65,8 +66,36 @@ func TestInsert(t *testing.T) {
 			Title:"test2",
 		},
 	}))
+	assert.Error(t, orm.Save(&Test1{
+	}))
 	dropTable(t, db, "test1")
 	dropTable(t, db, "test2")
+}
+
+func TestAddIndex(t *testing.T) {
+	db := newDB(t)
+	dropTable(t, db, "test1")
+	defer db.Close()
+	orm, err := New(newDB(t))
+	assert.NoError(t, err)
+	assert.NoError(t, orm.Create(&Test1{}, &Test2{}))
+	assert.NoError(t, orm.AddIndex())
+	assert.Error(t, orm.AddIndex(models.Index{
+		Name: "aaa",
+		Column: "test",
+		Type: "test",
+		Table: "test",
+	}))
+	assert.Error(t, orm.AddIndex(models.Index{
+		Column: "test",
+		Type: "test",
+		Table: "test",
+	}))
+	assert.Error(t, orm.AddIndex(models.Index{
+		Name: "test",
+		Type: "test",
+		Table: "test",
+	}))
 }
 
 func newDB(t *testing.T) *sql.DB {
