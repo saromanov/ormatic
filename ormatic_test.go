@@ -46,7 +46,7 @@ func TestInsert(t *testing.T) {
 	defer db.Close()
 	orm, err := New(newDB(t))
 	assert.NoError(t, err)
-	assert.NoError(t, orm.Create(&Test1{}, &Test2{}))
+	assert.NoError(t, orm.Create(&Test1{}))
 	assert.NoError(t, orm.Save(&Test1{
 		ID:    1,
 		Title: "test",
@@ -95,6 +95,11 @@ func TestAddIndex(t *testing.T) {
 		Name: "test",
 		Type: "test",
 		Table: "test",
+	}))
+	assert.NoError(t, orm.AddIndex(models.Index{
+		Name: "testing",
+		Column: "title",
+		Table: "test1",
 	}))
 }
 
